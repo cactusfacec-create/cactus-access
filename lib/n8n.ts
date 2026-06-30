@@ -29,7 +29,9 @@ async function post(path: string, body: unknown): Promise<unknown> {
   });
 
   if (!res.ok) return null;
-  return res.json();
+  const text = await res.text();
+  if (!text) return null;
+  return JSON.parse(text);
 }
 
 export async function n8nSendOtp(
@@ -53,12 +55,14 @@ export async function n8nNotificarPagoEmpleado(payload: {
   tipo: "pago_nomina" | "adelanto";
   descripcion?: string;
 }): Promise<void> {
-  const base = process.env.N8N_BASE_URL;
-  if (!base) return;
-  fetch(`${base}/webhook/pago-empleado-whatsapp`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ ...payload, phone: normalizePhone(payload.phone) }),
+  post("notificar-pago-empleado", {
+    nombre: payload.empleadoNombre,
+    phone: normalizePhone(payload.phone),
+    monto: payload.monto,
+    periodoDesde: payload.periodoDesde,
+    periodoHasta: payload.periodoHasta,
+    tipo: payload.tipo === "pago_nomina" ? "pago" : "adelanto",
+    descripcion: payload.descripcion,
   }).catch(() => {});
 }
 
