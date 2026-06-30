@@ -1,6 +1,7 @@
 "use server";
 
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
+import { n8nNotificarAdmin } from "@/lib/n8n";
 import type { AdminAccessLog, AdminAuditLog } from "@/lib/types/database.types";
 
 export async function logAdminAccess(userEmail: string, userId?: string): Promise<void> {
@@ -41,22 +42,13 @@ export async function logAudit(input: LogAuditInput): Promise<void> {
     // Logging failures must not break the application
   }
 
-  // Fire-and-forget: notificar a n8n para WhatsApp
-  const n8nBase = process.env.N8N_BASE_URL;
-  if (n8nBase) {
-    fetch(`${n8nBase}/webhook/cactus-notificaciones`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        accion: input.accion,
-        userEmail: input.userEmail,
-        empresaNombre: input.empresaNombre ?? null,
-        detalle: input.detalle ?? null,
-      }),
-    }).catch(() => {
-      // Notification failures must not break the application
-    });
-  }
+  // Fire-and-forget: notificar a n8n para WhatsApp (con X-Webhook-Secret)
+  n8nNotificarAdmin({
+    accion: input.accion,
+    userEmail: input.userEmail,
+    empresaNombre: input.empresaNombre ?? null,
+    detalle: input.detalle ?? null,
+  });
 }
 
 export async function getAccessLogs(): Promise<AdminAccessLog[]> {

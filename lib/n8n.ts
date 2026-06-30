@@ -66,6 +66,15 @@ export async function n8nNotificarPagoEmpleado(payload: {
   }).catch(() => {});
 }
 
+export async function n8nNotificarAdmin(payload: {
+  accion: string;
+  userEmail: string;
+  empresaNombre: string | null;
+  detalle: Record<string, unknown> | null;
+}): Promise<void> {
+  post("cactus-notificaciones", payload).catch(() => {});
+}
+
 export async function n8nVerifyOtp(telefono: string, code: string): Promise<boolean> {
   const phone = normalizePhone(telefono);
   const data = (await post("verificar-otp-whatsapp", { phone, code })) as {
