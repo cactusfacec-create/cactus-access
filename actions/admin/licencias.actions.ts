@@ -18,7 +18,7 @@ export async function updateLicenciaLimites(
   const parsed = licenciaLimitesSchema.safeParse(input);
   if (!parsed.success) return { ok: false, error: "Datos inválidos" };
 
-  await requireSuperAdmin();
+  const { user } = await requireSuperAdmin();
 
   const supabase = createServiceRoleClient();
   const { error } = await supabase
@@ -30,6 +30,26 @@ export async function updateLicenciaLimites(
     })
     .eq("id_empresa", parsed.data.idEmpresa);
   if (error) return { ok: false, error: "No se pudo actualizar la licencia" };
+
+  const { data: empresa } = await supabase
+    .from("empresas")
+    .select("nombre_empresa")
+    .eq("id", parsed.data.idEmpresa)
+    .single();
+
+  await logAudit({
+    userEmail: user.email ?? "",
+    userId: user.id,
+    accion: "actualizar_licencia",
+    entidad: "licencia",
+    entidadId: parsed.data.idEmpresa,
+    empresaNombre: empresa?.nombre_empresa,
+    detalle: {
+      limiteEmpleados: parsed.data.limiteEmpleados,
+      limiteSucursales: parsed.data.limiteSucursales,
+      fechaVencimiento: parsed.data.fechaVencimiento,
+    },
+  });
 
   revalidatePath("/admin");
   return { ok: true };

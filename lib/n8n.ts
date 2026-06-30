@@ -67,15 +67,19 @@ export async function n8nNotificarPagoEmpleado(payload: {
 }
 
 const ACCION_LABELS: Record<string, string> = {
-  crear_empresa:        "🏢 Nueva empresa creada",
-  editar_empresa:       "✏️ Empresa editada",
-  eliminar_empresa:     "🗑️ Empresa eliminada",
-  aprobar_pago:         "✅ Pago aprobado",
-  rechazar_pago:        "❌ Pago rechazado",
-  crear_enlace_pago:    "💳 Enlace de pago generado",
-  actualizar_licencia:  "🔑 Licencia actualizada",
-  crear_admin:          "👤 Nuevo administrador creado",
-  eliminar_admin:       "👤 Administrador eliminado",
+  crear_empresa:         "🏢 Nueva empresa creada",
+  editar_empresa:        "✏️ Empresa editada",
+  eliminar_empresa:      "🗑️ Empresa eliminada",
+  registrar_pago:        "💰 Pago registrado",
+  aprobar_pago:          "✅ Pago aprobado",
+  rechazar_pago:         "❌ Pago rechazado",
+  crear_enlace_pago:     "💳 Enlace de pago generado",
+  asignar_plan:          "🔑 Plan asignado",
+  actualizar_licencia:   "🔑 Licencia actualizada",
+  activar_empresa:       "✅ Empresa activada",
+  desactivar_empresa:    "⛔ Empresa desactivada",
+  crear_admin:           "👤 Nuevo administrador creado",
+  eliminar_admin:        "👤 Administrador eliminado",
 };
 
 export async function n8nNotificarAdmin(payload: {
