@@ -66,13 +66,35 @@ export async function n8nNotificarPagoEmpleado(payload: {
   }).catch(() => {});
 }
 
+const ACCION_LABELS: Record<string, string> = {
+  crear_empresa:        "🏢 Nueva empresa creada",
+  editar_empresa:       "✏️ Empresa editada",
+  eliminar_empresa:     "🗑️ Empresa eliminada",
+  aprobar_pago:         "✅ Pago aprobado",
+  rechazar_pago:        "❌ Pago rechazado",
+  crear_enlace_pago:    "💳 Enlace de pago generado",
+  actualizar_licencia:  "🔑 Licencia actualizada",
+  crear_admin:          "👤 Nuevo administrador creado",
+  eliminar_admin:       "👤 Administrador eliminado",
+};
+
 export async function n8nNotificarAdmin(payload: {
   accion: string;
   userEmail: string;
   empresaNombre: string | null;
   detalle: Record<string, unknown> | null;
 }): Promise<void> {
-  post("cactus-notificaciones", payload).catch(() => {});
+  const adminPhone = process.env.ADMIN_NOTIFICATION_WHATSAPP;
+  if (!adminPhone) return;
+
+  const label = ACCION_LABELS[payload.accion] ?? `🔔 ${payload.accion}`;
+  const empresa = payload.empresaNombre ? `\n📋 Empresa: ${payload.empresaNombre}` : "";
+  const messageText = `*Cactus Access — Admin*\n${label}${empresa}\n👤 Por: ${payload.userEmail}`;
+
+  post("notificaciones-whatsapp", {
+    remoteJid: normalizePhone(adminPhone),
+    messageText,
+  }).catch(() => {});
 }
 
 export async function n8nVerifyOtp(telefono: string, code: string): Promise<boolean> {
